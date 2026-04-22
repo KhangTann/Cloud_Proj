@@ -68,5 +68,5 @@ class OTPRecord(models.Model):
 
     class Meta:
         db_table = 'OTPRecords'
-        managed = False
+        managed = True
 
