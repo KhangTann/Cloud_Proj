@@ -1,31 +1,50 @@
-from django.shortcuts import render
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from bookings.models import Booking
+from tours.models import Tour
+from django.db.models import Sum
 
-from django.http import JsonResponse
-
+# 1. Revenue API
+@api_view(['GET'])
 def revenue(request):
-    data = {
-        "data": [
-            {"date": "2026-04-01", "revenue": 0},
-            {"date": "2026-04-02", "revenue": 0},
-        ]
-    }
-    return JsonResponse(data)
+    total_revenue = Booking.objects.aggregate(
+        total=Sum('total_price')
+    )['total'] or 0
+
+    return Response({
+        "status": "success",
+        "data": {
+            "total_revenue": total_revenue
+        }
+    })
 
 
+# 2. Top Tours API
+@api_view(['GET'])
 def top_tours(request):
-    data = {
-        "data": [
-            {"tour_name": "Tour Đà Lạt", "bookings": 0},
-            {"tour_name": "Tour Phú Quốc", "bookings": 0},
-        ]
-    }
-    return JsonResponse(data)
+    tours = (
+        Booking.objects
+        .values('tour__name')
+        .annotate(total_bookings=Sum('num_people'))
+        .order_by('-total_bookings')[:5]
+    )
+
+    return Response({
+        "status": "success",
+        "data": list(tours)
+    })
 
 
+# 3. Summary API
+@api_view(['GET'])
 def summary(request):
-    data = {
-        "total_bookings": 0,
-        "total_revenue": 0,
-        "total_users": 0
-    }
-    return JsonResponse(data)
+    total_users = Booking.objects.values('user').distinct().count()
+    total_bookings = Booking.objects.count()
+
+    return Response({
+        "status": "success",
+        "data": {
+            "total_users": total_users,
+            "total_bookings": total_bookings
+        }
+    })
