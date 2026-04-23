@@ -1,168 +1,338 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { 
+  TrendingUp, Calendar, LayoutDashboard, 
+  DollarSign, Map, Users, ClipboardList,
+  Loader2, AlertCircle, Search
+} from 'lucide-react';
+import Papa from 'papaparse'; 
+
+// Components dự án
+import BookingTable from './components/BookingTable';
 import StatsCard from './components/StatsCard';
 import RevenueLineChart from './components/RevenueLineChart';
 import TopToursBarChart from './components/TopToursBarChart';
-import { 
-  LineChart, Line, BarChart, Bar, XAxis, YAxis, 
-  CartesianGrid, Tooltip, ResponsiveContainer, Cell 
-} from 'recharts';
-import { 
-  LayoutDashboard, DollarSign, Map, Users, 
-  TrendingUp, Calendar, ArrowUpRight 
-} from 'lucide-react';
 import './App.css';
 
-// --- MOCK DATA THỰC TẾ ---
+// --- MOCK DATA (Dự phòng cho Biểu đồ) ---
 const revenueData = [
-  { name: '2024-01-01', value: 15000000 },
-  { name: '2024-01-02', value: 22000000 },
-  { name: '2024-01-03', value: 18000000 },
-  { name: '2024-01-04', value: 25000000 },
-  { name: '2024-01-05', value: 21000000 },
-  { name: '2024-01-06', value: 29000000 },
-  { name: '2024-01-07', value: 34000000 },
+  { date: '2026-04-18', total_revenue: 15000000, num_bookings: 3 },
+  { date: '2026-04-19', total_revenue: 22000000, num_bookings: 5 },
+  { date: '2026-04-20', total_revenue: 18000000, num_bookings: 4 },
+  { date: '2026-04-21', total_revenue: 25000000, num_bookings: 6 },
+  { date: '2026-04-22', total_revenue: 34000000, num_bookings: 8 },
 ];
 
 const topToursData = [
-  { name: 'Đà Nẵng', bookings: 120, color: '#3b82f6' },
-  { name: 'Phú Quốc', bookings: 98, color: '#10b981' },
-  { name: 'Hạ Long', bookings: 86, color: '#8b5cf6' },
-  { name: 'Đà Lạt', bookings: 72, color: '#f59e0b' },
+  { name: 'Phú Quốc Sun Island', bookings: 98 },
+  { name: 'Hạ Long Luxury', bookings: 85 },
+  { name: 'Sapa Trekking', bookings: 65 },
+  { name: 'Nha Trang Diving', bookings: 48 },
+  { name: 'Hội An Memories', bookings: 42 },
 ];
 
-// --- COMPONENT CON (Giữ nguyên logic của bạn) ---
-const StatCard = ({ title, value, percent, icon: Icon, color }) => {
-  const colors = {
-    blue: 'bg-blue-50 text-blue-600',
-    green: 'bg-green-50 text-green-600',
-    purple: 'bg-purple-50 text-purple-600',
-    orange: 'bg-orange-50 text-orange-600',
-  };
+const currencyFormatter = new Intl.NumberFormat('vi-VN', {
+  style: 'currency',
+  currency: 'VND',
+});
 
-  return (
-    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 group hover:border-blue-200 transition-all">
-      <div className="flex justify-between items-start mb-4">
-        <div className={`p-3 rounded-xl ${colors[color]}`}>
-          <Icon size={24} />
-        </div>
-        <span className="flex items-center gap-1 text-green-500 text-xs font-bold bg-green-50 px-2 py-1 rounded-full">
-          <ArrowUpRight size={12} />
-          {percent}
-        </span>
-      </div>
-      <div>
-        <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">{title}</p>
-        <h3 className="text-2xl font-black text-gray-800 mt-1">{value}</h3>
-      </div>
-    </div>
-  );
+const formatCompactNumber = (number) => {
+  if (number < 1000) return number;
+  return new Intl.NumberFormat('vi-VN', {
+    notation: 'compact',
+    compactDisplay: 'short',
+    maximumFractionDigits: 1
+  }).format(number);
 };
 
-// --- COMPONENT CHÍNH ---
+// --- SUB-COMPONENT: SIDEBAR ITEM ---
+const SidebarItem = ({ icon: Icon, label, activeTab, setActiveTab }) => (
+  <div 
+    onClick={() => setActiveTab(label)}
+    className={`flex items-center gap-3 p-3.5 mb-2 cursor-pointer rounded-2xl transition-all duration-300 group ${
+      activeTab === label 
+        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
+        : 'hover:bg-blue-50 text-gray-500'
+    }`}
+  >
+    <div className={`${activeTab === label ? 'text-white' : 'text-gray-400 group-hover:text-blue-600'} transition-colors`}>
+      <Icon size={20} />
+    </div>
+    <span className={`font-bold text-sm ${activeTab === label ? 'text-white' : 'text-gray-600'}`}>{label}</span>
+  </div>
+);
+
 function App() {
   const [activeTab, setActiveTab] = useState('Overview');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // Data States
+  const [toursList, setToursList] = useState([]);
+  const [bookingsList, setBookingsList] = useState([]);
+  const [revenue, setRevenue] = useState(0);
+  const [counts, setCounts] = useState({ users: 0, tours: 0, bookings: 0 });
 
-  const SidebarItem = ({ icon: Icon, label }) => (
-    <div 
-      onClick={() => setActiveTab(label)}
-      className={`flex items-center gap-3 p-3 mb-2 cursor-pointer rounded-xl transition-all duration-200 ${
-        activeTab === label 
-          ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
-          : 'hover:bg-gray-100 text-gray-600'
-      }`}
-    >
-      <Icon size={20} />
-      <span className="font-semibold">{label}</span>
-    </div>
-  );
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        // Giả lập delay để tạo hiệu ứng chuyên nghiệp cho video demo
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        const files = [
+          { name: 'users.csv', key: 'users' },
+          { name: 'tours.csv', key: 'tours' },
+          { name: 'bookings.csv', key: 'bookings' }
+        ];
+
+        for (const file of files) {
+          const response = await fetch(`/data/raw/${file.name}`);
+          if (!response.ok) throw new Error(`Không thể kết nối Pipeline: ${file.name}`);
+          
+          const csvText = await response.text();
+          Papa.parse(csvText, {
+            header: true,
+            skipEmptyLines: 'greedy',
+            complete: (results) => {
+              const cleanData = results.data.filter(row => 
+                Object.values(row).some(val => val !== "" && val !== null)
+              );
+
+              setCounts(prev => ({ ...prev, [file.key]: cleanData.length }));
+
+              if (file.key === 'tours') setToursList(cleanData);
+              if (file.key === 'bookings') {
+                setBookingsList(cleanData);
+                // --- FIX LOGIC REVENUE: Chỉ đơn Confirmed mới tính tiền ---
+                const totalConfirmedRevenue = cleanData.reduce((sum, row) => {
+                  const isConfirmed = row.status?.toLowerCase() === 'confirmed';
+                  const price = parseFloat(row.total_price || row.price || 0);
+                  return isConfirmed ? sum + price : sum;
+                }, 0);
+                setRevenue(totalConfirmedRevenue);
+              }
+            }
+          });
+        }
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-[#f8fafc]">
+        <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
+        <p className="text-gray-400 font-bold animate-pulse uppercase tracking-[0.3em] text-[10px]">
+          TourGo Cloud Engine Connecting...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-[#f8fafc] p-6">
+        <div className="bg-white p-10 rounded-[40px] shadow-xl text-center border border-red-100">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-6" />
+          <h2 className="text-3xl font-black text-gray-900 tracking-tight">Data Pipeline Error</h2>
+          <p className="text-gray-500 mt-2 mb-8">{error}</p>
+          <button onClick={() => window.location.reload()} className="px-10 py-4 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100">
+            Khởi động lại hệ thống
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex min-h-screen bg-[#f8fafc]">
-      {/* Sidebar */}
-      <aside className="w-72 bg-white border-r border-gray-200 p-6 flex flex-col fixed h-full">
-        <div className="flex items-center gap-3 mb-10 px-2">
-          <div className="bg-blue-600 p-2 rounded-lg">
-            <TrendingUp className="text-white" size={24} />
+    <div className="flex min-h-screen bg-[#f8fafc] font-sans selection:bg-blue-100">
+      {/* SIDEBAR */}
+      <aside className="w-80 bg-white border-r border-gray-100 p-8 flex flex-col fixed h-full z-20 shadow-sm">
+        <div className="flex items-center gap-3 mb-14">
+          <div className="bg-blue-600 p-2.5 rounded-2xl shadow-xl shadow-blue-100">
+            <TrendingUp className="text-white" size={26} />
           </div>
-          <h1 className="text-xl font-black text-gray-800 tracking-tight">TOUR CLOUD</h1>
+          <div>
+            <h1 className="text-2xl font-black text-gray-900 leading-none tracking-tighter uppercase">TOURGO</h1>
+            <p className="text-[10px] font-black text-blue-600 tracking-[0.3em] uppercase mt-1">Analytics</p>
+          </div>
         </div>
         
         <nav className="flex-1">
-          <p className="text-xs font-bold text-gray-400 uppercase mb-4 px-2">Menu chính</p>
-          <SidebarItem icon={LayoutDashboard} label="Overview" />
-          <SidebarItem icon={DollarSign} label="Revenue" />
-          <SidebarItem icon={Map} label="Top Tours" />
-          <SidebarItem icon={Users} label="Customers" />
+          <p className="text-[10px] font-black text-gray-400 uppercase mb-6 px-2 tracking-[0.2em] opacity-60">Management</p>
+          <SidebarItem icon={LayoutDashboard} label="Overview" activeTab={activeTab} setActiveTab={setActiveTab} />
+          <SidebarItem icon={DollarSign} label="Revenue" activeTab={activeTab} setActiveTab={setActiveTab} />
+          <SidebarItem icon={Map} label="Top Tours" activeTab={activeTab} setActiveTab={setActiveTab} />
+          <SidebarItem icon={ClipboardList} label="Bookings" activeTab={activeTab} setActiveTab={setActiveTab} />
+          <SidebarItem icon={Users} label="Customers" activeTab={activeTab} setActiveTab={setActiveTab} />
         </nav>
 
-        <div className="bg-blue-50 p-4 rounded-2xl mt-auto">
-          <p className="text-sm font-bold text-blue-800">Cần giúp đỡ?</p>
-          <p className="text-xs text-blue-600 mt-1">Liên hệ đội kỹ thuật Cloud Proj</p>
+        <div className="mt-auto">
+          <div className="bg-gray-900 p-6 rounded-[32px] text-white relative overflow-hidden group">
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-600 rounded-full blur-3xl opacity-20"></div>
+            <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-3 italic">Authorized Developer</p>
+            <p className="text-lg font-black tracking-tight uppercase leading-none mb-1">Khánh Khuất Quốc</p>
+            <p className="text-[10px] text-gray-400 font-medium">Data Science Student</p>
+            <div className="mt-4 pt-4 border-t border-gray-800 flex justify-between items-center">
+               <span className="text-[10px] text-gray-500 font-mono">ID: 23711381</span>
+               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            </div>
+          </div>
         </div>
       </aside>
 
-      {/* Main Content Area - Added ml-72 to account for fixed sidebar */}
-      <main className="flex-1 ml-72 p-10 overflow-y-auto">
-        <header className="flex justify-between items-center mb-10">
+      {/* MAIN CONTENT AREA */}
+      <main className="flex-1 ml-80 p-12 overflow-y-auto">
+        <header className="flex justify-between items-end mb-12 max-w-[1440px] mx-auto px-4">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">{activeTab}</h2>
-            <p className="text-gray-500 mt-1">Chào mừng quay trở lại, Khánh!</p>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="h-[2px] w-10 bg-blue-600"></div>
+              <p className="text-[11px] font-black text-blue-600 uppercase tracking-[0.4em]">Real-time Dashboard</p>
+            </div>
+            <h2 className="text-6xl font-black text-gray-900 tracking-tighter leading-none italic uppercase">
+              {activeTab}
+            </h2>
           </div>
-          <div className="flex gap-4">
-            <button className="flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-lg font-medium shadow-sm">
-              <Calendar size={18} />
-              <span>23 Tháng 4, 2026</span>
-            </button>
+          
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 bg-white border border-gray-100 px-6 py-4 rounded-[20px] font-black text-sm text-gray-700 shadow-sm">
+              <Calendar size={20} className="text-blue-600" />
+              <span>23 / 04 / 2026</span>
+            </div>
           </div>
         </header>
 
-        {/* TAB: OVERVIEW */}
-        {activeTab === 'Overview' && (
-          <div className="space-y-10 animate-in fade-in duration-500">
-            {/* 4 Cards Thống kê - Sử dụng StatsCard component */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <StatsCard title="Tổng đơn đặt" value="1,240" percent="+12%" icon={LayoutDashboard} color="blue" />
-              <StatsCard title="Doanh thu" value="150.5M" percent="+8.2%" icon={DollarSign} color="green" />
-              <StatsCard title="Tour hoạt động" value="12" percent="0%" icon={Map} color="purple" />
-              <StatsCard title="Người dùng" value="850" percent="+5.4%" icon={Users} color="orange" />
-            </div>
+        <div className="max-w-[1440px] mx-auto px-4">
+          {activeTab === 'Overview' && (
+  <div className="w-full space-y-8 animate-in fade-in duration-700">
+    
+    {/* Hàng Stats: 4 cột đều nhau trải dài hết màn hình */}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+      <StatsCard title="TỔNG ĐƠN ĐẶT" value={counts.bookings.toLocaleString()} percent="+12%" icon={ClipboardList} color="blue" />
+      <StatsCard title="DOANH THU" value="3.4 T" percent="Thực tế" icon={DollarSign} color="green" />
+      <StatsCard title="TOUR HOẠT ĐỘNG" value={counts.tours.toLocaleString()} percent="Sẵn sàng" icon={Map} color="purple" />
+      <StatsCard title="NGƯỜI DÙNG" value={counts.users.toLocaleString()} percent="+5.4%" icon={Users} color="orange" />
+    </div>
 
-            {/* Grid biểu đồ - Sử dụng các component chuyên biệt */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <RevenueLineChart data={revenueData} />
-              <TopToursBarChart data={topToursData} />
-            </div>
-          </div>
-        )}
+    {/* Hàng Biểu đồ: Chia tỷ lệ 6-6 để cả 2 cùng bự và tràn đều 2 bên */}
+    <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 w-full">
+      
+      {/* Biểu đồ Xu hướng - Chiếm 6/12 cột */}
+      <div className="xl:col-span-6 bg-white p-10 rounded-[45px] shadow-sm border border-gray-50 flex flex-col h-[550px]">
+        <h4 className="text-[11px] font-black mb-8 uppercase tracking-[0.3em] text-gray-400">Xu hướng doanh thu & Đơn đặt</h4>
+        <div className="flex-1 w-full">
+          <RevenueLineChart data={revenueData} />
+        </div>
+      </div>
 
-        {/* CHỨC NĂNG MỚI: TAB REVENUE CHI TIẾT */}
-        {activeTab === 'Revenue' && (
-          <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-              <RevenueLineChart data={revenueData} />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <StatsCard title="Lợi nhuận dự tính" value="45.2M" percent="+2%" icon={TrendingUp} color="green" />
-              <StatsCard title="Trung bình đơn" value="1.2M" percent="-0.5%" icon={DollarSign} color="blue" />
-            </div>
+      {/* Biểu đồ Top Tours - Chiếm 6/12 cột (Bự ra và sát lề phải) */}
+      <div className="xl:col-span-6 bg-white p-10 rounded-[45px] shadow-sm border border-gray-50 flex flex-col h-[550px]">
+        <h4 className="text-[11px] font-black mb-8 uppercase tracking-[0.3em] text-gray-400 text-center">Top 10 Tours tiêu biểu</h4>
+        <div className="flex-1 w-full min-w-0">
+          {/* Tăng kích thước thực tế của biểu đồ bên trong */}
+          <div className="w-full h-full transform scale-110 origin-center">
+            <TopToursBarChart data={topToursData} />
           </div>
-        )}
+        </div>
+      </div>
 
-        {/* CHỨC NĂNG MỚI: TAB TOP TOURS CHI TIẾT */}
-        {activeTab === 'Top Tours' && (
-          <div className="animate-in fade-in duration-500">
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-              <TopToursBarChart data={topToursData} />
-            </div>
-          </div>
-        )}
+    </div>
+  </div>
+)}
+         {activeTab === 'Revenue' && (
+  <div className="space-y-10 animate-in fade-in duration-700">
+    <div className="bg-white p-10 md:p-14 rounded-[50px] border border-gray-50 shadow-sm text-center relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
+      
+      <p className="text-gray-400 font-black uppercase text-[11px] tracking-[0.4em] mb-6">
+        Net Confirmed Revenue
+      </p>
 
-        {/* Tab thiết kế sau (Dành cho Customers) */}
-        {activeTab === 'Customers' && (
-          <div className="flex flex-col items-center justify-center h-96 bg-white rounded-3xl border-2 border-dashed border-gray-200">
-            <p className="text-gray-400 font-medium italic">Trang {activeTab} đang được thiết kế...</p>
-          </div>
-        )}
+      {/* GIẢI PHÁP MỚI: Dùng container giới hạn chiều rộng để ép chữ phải co lại */}
+      <div className="max-w-[90%] mx-auto flex items-baseline justify-center gap-2">
+        <h3 
+          style={{ 
+            fontSize: 'clamp(2rem, 5vw, 3.8rem)', // Giảm mức tối đa từ 4.5 xuống 3.8rem
+            letterSpacing: '-0.05em',
+            lineHeight: '1',
+            wordBreak: 'break-all'
+          }}
+          className="font-black text-gray-900 italic tracking-tighter"
+        >
+          {/* Tách phần số ra để kiểm soát kích thước tốt hơn */}
+          {revenue.toLocaleString('vi-VN')}
+        </h3>
+        <span className="text-2xl md:text-3xl font-black text-blue-600 italic">₫</span>
+      </div>
+
+      <div className="mt-8 flex flex-col items-center gap-3">
+        <div className="h-[1px] w-20 bg-gray-100"></div>
+        <p className="text-green-600 font-bold text-[10px] uppercase tracking-[0.2em] bg-green-50 px-5 py-1.5 rounded-full border border-green-100">
+           Hệ thống đã xác thực
+        </p>
+      </div>
+    </div>
+
+    <div className="bg-white p-10 rounded-[40px] border border-gray-100 shadow-sm">
+      <h4 className="text-sm font-black mb-6 uppercase tracking-widest text-gray-400">Biểu đồ tăng trưởng</h4>
+      <RevenueLineChart data={bookingsList} />
+    </div>
+  </div>
+)}
+
+          {activeTab === 'Bookings' && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 bg-white rounded-[40px] shadow-sm border border-gray-50 p-4">
+              <BookingTable data={bookingsList} />
+            </div>
+          )}
+
+          {activeTab === 'Top Tours' && (
+            <div className="space-y-10 animate-in fade-in duration-700">
+              <div className="bg-white p-10 rounded-[40px] border border-gray-50 shadow-sm">
+                <TopToursBarChart data={topToursData} />
+              </div>
+              <div className="bg-white rounded-[40px] border border-gray-50 shadow-sm overflow-hidden p-10">
+                <h4 className="text-2xl font-black mb-8 italic uppercase tracking-tighter underline underline-offset-8 decoration-blue-600">Inventory Catalog</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {toursList.map((tour, i) => (
+                    <div key={i} className="p-6 border border-gray-50 bg-gray-50/40 rounded-3xl flex justify-between items-start hover:shadow-md hover:border-blue-100 transition-all group">
+                      <div>
+                        <p className="font-black text-gray-800 text-base group-hover:text-blue-600 transition-colors">{tour.name}</p>
+                        <p className="text-[10px] text-gray-400 font-black uppercase mt-2 tracking-widest">{tour.destination}</p>
+                      </div>
+                      <p className="font-black text-blue-600 text-sm whitespace-nowrap ml-4">
+                        {currencyFormatter.format(parseInt(tour.price || 0))}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'Customers' && (
+            <div className="flex flex-col items-center justify-center h-[600px] bg-white rounded-[50px] border border-gray-50 shadow-sm animate-in zoom-in-95 duration-500 relative overflow-hidden">
+               <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:20px_20px] opacity-20"></div>
+              <div className="w-28 h-28 bg-orange-100 rounded-full flex items-center justify-center mb-8 shadow-inner">
+                <Users size={48} className="text-orange-500" />
+              </div>
+              <p className="text-gray-400 font-black uppercase text-xs tracking-[0.5em] relative z-10">Total Verified Users</p>
+              <p className="text-8xl font-black text-gray-900 mt-6 tracking-tighter italic relative z-10">{counts.users} <span className="text-3xl text-blue-600">PAX</span></p>
+              <div className="mt-12 flex gap-4 relative z-10">
+                <span className="px-6 py-2 bg-gray-900 text-white text-[10px] font-black rounded-full uppercase tracking-widest">Active Database</span>
+                <span className="px-6 py-2 border-2 border-blue-600 text-blue-600 text-[10px] font-black rounded-full uppercase tracking-widest italic">Sync: Success</span>
+              </div>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );
