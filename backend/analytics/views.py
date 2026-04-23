@@ -5,46 +5,35 @@ from tours.models import Tour
 from django.db.models import Sum
 
 # 1. Revenue API
+from .utils import read_csv_file
+
+
 @api_view(['GET'])
 def revenue(request):
-    total_revenue = Booking.objects.aggregate(
-        total=Sum('total_price')
-    )['total'] or 0
+    data = read_csv_file("gold_revenue_by_day.csv")
 
     return Response({
         "status": "success",
-        "data": {
-            "total_revenue": total_revenue
-        }
+        "data": data
     })
-
 
 # 2. Top Tours API
 @api_view(['GET'])
 def top_tours(request):
-    tours = (
-        Booking.objects
-        .values('tour__name')
-        .annotate(total_bookings=Sum('num_people'))
-        .order_by('-total_bookings')[:5]
-    )
+    data = read_csv_file("gold_top_tours.csv")
 
     return Response({
         "status": "success",
-        "data": list(tours)
+        "data": data
     })
 
 
 # 3. Summary API
 @api_view(['GET'])
 def summary(request):
-    total_users = Booking.objects.values('user').distinct().count()
-    total_bookings = Booking.objects.count()
+    data = read_csv_file("gold_summary.csv")
 
     return Response({
         "status": "success",
-        "data": {
-            "total_users": total_users,
-            "total_bookings": total_bookings
-        }
+        "data": data[0] if data else {}
     })
