@@ -3,34 +3,42 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 def convert_types(data):
     for row in data:
         for key in row:
             value = row[key]
 
-            # Try int
-            try:
+            if value is None or value == "":
+                row[key] = None
+                continue
+
+            # int
+            if value.isdigit():
                 row[key] = int(value)
                 continue
-            except:
-                pass
 
-            # Try float
+            # float
             try:
                 row[key] = float(value)
                 continue
             except:
                 pass
 
-            # Keep string if not number
+            # keep string
             row[key] = value
 
     return data
 
+_cache = {}
 
 def read_csv_file(file_name):
+    if file_name in _cache:
+        return _cache[file_name]
+
     file_path = os.path.join(BASE_DIR, "gold_data", file_name)
+
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"{file_name} not found")
 
     data = []
 
@@ -39,7 +47,8 @@ def read_csv_file(file_name):
         for row in reader:
             data.append(row)
 
-    # Convert types AFTER reading
     data = convert_types(data)
+
+    _cache[file_name] = data  # cache
 
     return data
