@@ -90,10 +90,11 @@ DATABASES = {
         'NAME': 'TourBookingDB',
         'USER': 'sa',
         'PASSWORD': '123456',
-        'HOST': 'localhost\\SQLEXPRESS01',
-        'PORT': '',  # Thường để trống cho bản Express hoặc đổi theo cấu hình thực tế
+        'HOST': 'localhost',  
+        'PORT': '',
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',
+            'extra_params': 'TrustServerCertificate=yes;',
         },
     }
 }

@@ -7,15 +7,15 @@ class Booking(models.Model):
     booking_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_column='user_id')
     tour = models.ForeignKey(Tour, on_delete=models.CASCADE, db_column='tour_id')
-    number_of_people = models.IntegerField()
-    contact_email = models.CharField(max_length=150, null=True, blank=True)
-    contact_phone = models.CharField(max_length=20, null=True, blank=True)
+    booking_date = models.DateField(auto_now_add=True)
+    travel_date = models.DateField()
+    num_people = models.IntegerField()
+    total_price = models.DecimalField(max_digits=12, decimal_places=2)
     status = models.CharField(max_length=20, default='PENDING')
-    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'Bookings'
-        managed = False
+        managed = True
 
 class Payment(models.Model):
     payment_id = models.AutoField(primary_key=True)
@@ -28,7 +28,7 @@ class Payment(models.Model):
 
     class Meta:
         db_table = 'Payments'
-        managed = False
+        managed = True
 
 
 class Revenue(models.Model):
@@ -43,4 +43,4 @@ class Revenue(models.Model):
 
     class Meta:
         db_table = 'Revenue'
-        managed = False
+        managed = True
