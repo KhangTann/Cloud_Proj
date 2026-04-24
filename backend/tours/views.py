@@ -37,8 +37,8 @@ class TourCreateView(APIView):
     def post(self, request):
         serializer = TourCreateSerializer(data=request.data)
         if serializer.is_valid():
-            # Tự động gán creator là user đang đăng nhập
-            serializer.save(creator=request.user)
+            # Tour model mới không có creator field
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -50,14 +50,15 @@ class CreatorTourListView(ListAPIView):
     serializer_class = TourSerializer
 
     def get_queryset(self):
-        return Tour.objects.filter(creator=self.request.user).order_by('-created_at')
+        # Tour model mới không có creator field, tạm thời return all
+        return Tour.objects.all().order_by('-tour_id')
 
 class AdminTourListView(ListAPIView):
     """
     GET /api/tours/admin/list/ - Admin xem tất cả các tour (kể cả pending)
     """
     permission_classes = [IsAdminRole]
-    queryset = Tour.objects.all().order_by('-created_at')
+    queryset = Tour.objects.all().order_by('-tour_id')
     serializer_class = TourSerializer
 
 class TourStatusUpdateView(APIView):

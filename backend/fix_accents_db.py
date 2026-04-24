@@ -9,7 +9,7 @@ sys.stdout.reconfigure(encoding='utf-8')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tour_platform.settings')
 django.setup()
 
-from tours.models import Location, Tour
+from .tours.models import Location, Tour
 
 def fix_accents():
     print("Starting database accent correction...")

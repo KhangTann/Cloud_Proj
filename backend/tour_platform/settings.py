@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'users',
     'tours',
     'bookings',
+
+    'analytics',
 ]
 
 MIDDLEWARE = [
@@ -80,6 +82,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'tour_platform.wsgi.application'
 
+CORS_ALLOW_ALL_ORIGINS = True
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
@@ -90,10 +98,11 @@ DATABASES = {
         'NAME': 'TourBookingDB',
         'USER': 'sa',
         'PASSWORD': '123456',
-        'HOST': 'localhost\\SQLEXPRESS01',
-        'PORT': '',  # Thường để trống cho bản Express hoặc đổi theo cấu hình thực tế
+        'HOST': 'localhost',  
+        'PORT': '',
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',
+            'extra_params': 'TrustServerCertificate=yes;',
         },
     }
 }
@@ -138,7 +147,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 # CORS Configuration
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -159,4 +168,8 @@ SIMPLE_JWT = {
     'USER_ID_FIELD': 'user_id',
     'USER_ID_CLAIM': 'user_id',
 }
+
+
+AWS_ACCESS_KEY = ""
+AWS_SECRET_KEY = ""
 

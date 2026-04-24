@@ -10,31 +10,26 @@ class Location(models.Model):
 
     class Meta:
         db_table = 'Locations'
-        managed = False
+        managed = True
 
     def __str__(self):
         return self.name
 
 class Tour(models.Model):
     tour_id = models.AutoField(primary_key=True)
-    creator = models.ForeignKey(User, on_delete=models.CASCADE, db_column='creator_id')
-    title = models.CharField(max_length=255)
-    description = models.TextField(null=True, blank=True)
-    location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, db_column='location_id')
+    name = models.CharField(max_length=255)
+    destination = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=12, decimal_places=2)
-    start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
-    max_people = models.IntegerField()
+    duration_days = models.IntegerField()
+    category = models.CharField(max_length=100)
     available_slots = models.IntegerField()
-    status = models.CharField(max_length=20, default='PENDING')
-    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'Tours'
-        managed = False
+        managed = True
 
     def __str__(self):
-        return self.title
+        return self.name
 
 class TourImage(models.Model):
     image_id = models.AutoField(primary_key=True)
@@ -43,7 +38,7 @@ class TourImage(models.Model):
 
     class Meta:
         db_table = 'TourImages'
-        managed = False
+        managed = True
 
 class Review(models.Model):
     review_id = models.AutoField(primary_key=True)
@@ -55,7 +50,7 @@ class Review(models.Model):
 
     class Meta:
         db_table = 'Reviews'
-        managed = False
+        managed = True
 
     def __str__(self):
         return f"Review by {self.user.username} for {self.tour.title}"
