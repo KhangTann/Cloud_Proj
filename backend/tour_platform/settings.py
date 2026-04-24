@@ -170,6 +170,9 @@ SIMPLE_JWT = {
 }
 
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
 AWS_ACCESS_KEY = ""
 AWS_SECRET_KEY = ""
 

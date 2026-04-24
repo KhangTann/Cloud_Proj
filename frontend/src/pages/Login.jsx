@@ -12,7 +12,7 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post('users/login/', { username, password });
+      const res = await api.post('users/login/', { email: username, password });
       localStorage.setItem('access_token', res.data.access);
       localStorage.setItem('refresh_token', res.data.refresh);
       navigate('/');
@@ -37,7 +37,7 @@ function Login() {
 
           <form className="login-form" onSubmit={handleLogin}>
             <div className="input-group">
-              <label>Tên đăng nhập</label>
+              <label>Email</label>
               <input
                 type="text"
                 value={username}

@@ -82,7 +82,7 @@ function Navbar() {
           <div className="auth-buttons">
             {token ? (
               <>
-                <Link to="/profile" className="auth-link username-link">{user?.username || 'Tài khoản'}</Link>
+                <Link to="/profile" className="auth-link full_name-link">{user?.username || 'Tài khoản'}</Link>
                 <span className="auth-divider">|</span>
                 <button onClick={handleLogout} className="auth-btn-text">Đăng xuất</button>
               </>

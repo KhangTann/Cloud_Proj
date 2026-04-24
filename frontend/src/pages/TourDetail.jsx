@@ -123,7 +123,7 @@ function TourDetail() {
 
   if (!tour) return null;
 
-  const avgRating = tour.reviews?.length > 0 
+  const avgRating = tour.reviews?.length > 0
     ? (tour.reviews.reduce((acc, r) => acc + r.rating, 0) / tour.reviews.length).toFixed(1)
     : "0.0";
 
@@ -141,10 +141,10 @@ function TourDetail() {
           >
             {tour.images.map((img) => (
               <SwiperSlide key={img.image_id}>
-                <img 
-                  src={`/images/${img.image_url}`} 
-                  onError={(e)=>{e.target.src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80"}} 
-                  alt={tour.title} 
+                <img
+                  src={`/images/${img.image_url}`}
+                  onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80" }}
+                  alt={tour.title}
                   className="w-full h-full object-cover transition duration-700 group-hover:scale-105"
                 />
               </SwiperSlide>
@@ -154,9 +154,9 @@ function TourDetail() {
           <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80" alt="Placeholder" className="w-full h-full object-cover" />
         )}
         <div className="absolute top-6 left-6 z-10">
-             <span className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-bold text-primary shadow-lg border border-white">
-                <MapPin size={14} className="inline mr-1" /> {tour.location?.name}
-             </span>
+          <span className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-bold text-primary shadow-lg border border-white">
+            <MapPin size={14} className="inline mr-1" /> {tour.location?.name}
+          </span>
         </div>
       </div>
 
@@ -165,58 +165,58 @@ function TourDetail() {
         <div className="flex flex-col lg:flex-row gap-12">
           <div className="w-full lg:w-2/3 space-y-10">
             <div>
-                <h1 className="text-4xl font-black text-gray-900 mb-4 leading-tight">{tour.title}</h1>
-                <div className="flex flex-wrap gap-4 items-center">
-                    <div className="flex text-yellow-500">
-                        {[...Array(5)].map((_, i) => (
-                            <Star key={i} size={18} fill={i < Math.round(Number(avgRating)) ? "currentColor" : "none"} />
-                        ))}
-                    </div>
-                    <span className="text-gray-500 text-sm font-medium">({tour.reviews?.length || 0} đánh giá khách hàng)</span>
+              <h1 className="text-4xl font-black text-gray-900 mb-4 leading-tight">{tour.title}</h1>
+              <div className="flex flex-wrap gap-4 items-center">
+                <div className="flex text-yellow-500">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={18} fill={i < Math.round(Number(avgRating)) ? "currentColor" : "none"} />
+                  ))}
                 </div>
+                <span className="text-gray-500 text-sm font-medium">({tour.reviews?.length || 0} đánh giá khách hàng)</span>
+              </div>
             </div>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center">
-                    <Calendar className="mx-auto mb-2 text-purple-600" size={20} />
-                    <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">Ngày đi</p>
-                    <p className="text-sm font-bold text-gray-800">{new Date(tour.start_date).toLocaleDateString("vi-VN")}</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center">
-                    <Clock className="mx-auto mb-2 text-blue-600" size={20} />
-                    <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">Thời gian</p>
-                    <p className="text-sm font-bold text-gray-800">3 ngày 2 đêm</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center">
-                    <Users className="mx-auto mb-2 text-green-600" size={20} />
-                    <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">Chỗ trống</p>
-                    <p className="text-sm font-bold text-gray-800">{tour.available_slots} / {tour.max_people}</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center">
-                    <Star className="mx-auto mb-2 text-orange-600" size={20} />
-                    <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">Giá từ</p>
-                    <p className="text-sm font-bold text-gray-800">{Number(tour.price).toLocaleString()}đ</p>
-                </div>
+              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center">
+                <Calendar className="mx-auto mb-2 text-purple-600" size={20} />
+                <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">Ngày đi</p>
+                <p className="text-sm font-bold text-gray-800">{new Date(tour.start_date).toLocaleDateString("vi-VN")}</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center">
+                <Clock className="mx-auto mb-2 text-blue-600" size={20} />
+                <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">Thời gian</p>
+                <p className="text-sm font-bold text-gray-800">3 ngày 2 đêm</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center">
+                <Users className="mx-auto mb-2 text-green-600" size={20} />
+                <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">Chỗ trống</p>
+                <p className="text-sm font-bold text-gray-800">{tour.available_slots} / {tour.max_people}</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center">
+                <Star className="mx-auto mb-2 text-orange-600" size={20} />
+                <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">Giá từ</p>
+                <p className="text-sm font-bold text-gray-800">{Number(tour.price).toLocaleString()}đ</p>
+              </div>
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2"> <AlertCircle size={22} className="text-primary"/> Chi tiết chuyến đi</h3>
+              <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2"> <AlertCircle size={22} className="text-primary" /> Chi tiết chuyến đi</h3>
               <p className="text-gray-600 leading-relaxed text-lg whitespace-pre-line bg-purple-50/30 p-6 rounded-2xl border border-purple-100">
                 {tour.description || "Chưa có mô tả chi tiết cho tour này."}
               </p>
             </div>
-            
+
             <div className="space-y-4">
               <h3 className="text-2xl font-bold text-gray-900 border-l-4 border-primary pl-4">Vị trí chuyến đi</h3>
               <div className="w-full h-80 bg-gray-100 rounded-3xl overflow-hidden shadow-inner border-4 border-white">
-                <iframe 
+                <iframe
                   title="google-map"
-                  width="100%" 
-                  height="100%" 
-                  frameBorder="0" 
-                  scrolling="no" 
-                  marginHeight="0" 
-                  marginWidth="0" 
+                  width="100%"
+                  height="100%"
+                  frameBorder="0"
+                  scrolling="no"
+                  marginHeight="0"
+                  marginWidth="0"
                   src={`https://maps.google.com/maps?q=${tour.location?.latitude || 16.0544},${tour.location?.longitude || 108.2022}&hl=vi&z=14&output=embed`}
                 ></iframe>
               </div>
@@ -224,51 +224,51 @@ function TourDetail() {
 
             {/* Reviews Section */}
             <div className="pt-10 border-t space-y-10">
-                <div className="flex items-center justify-between">
-                    <h3 className="text-2xl font-bold text-gray-900">Đánh giá khách hàng</h3>
-                    <div className="flex items-center gap-2 bg-yellow-50 px-4 py-2 rounded-full border border-yellow-100">
-                        <Star className="text-yellow-500" fill="currentColor" size={20} />
-                        <span className="font-bold text-xl text-yellow-700">
-                            {avgRating}
-                        </span>
-                        <span className="text-yellow-600/50">/ 5.0</span>
-                    </div>
+              <div className="flex items-center justify-between">
+                <h3 className="text-2xl font-bold text-gray-900">Đánh giá khách hàng</h3>
+                <div className="flex items-center gap-2 bg-yellow-50 px-4 py-2 rounded-full border border-yellow-100">
+                  <Star className="text-yellow-500" fill="currentColor" size={20} />
+                  <span className="font-bold text-xl text-yellow-700">
+                    {avgRating}
+                  </span>
+                  <span className="text-yellow-600/50">/ 5.0</span>
                 </div>
+              </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {tour.reviews?.map((review) => (
-                        <div key={review.review_id} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition duration-300">
-                            <div className="flex justify-between items-center mb-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 text-white flex items-center justify-center font-bold">
-                                        {review.username?.[0].toUpperCase()}
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-gray-900 text-sm">{review.username}</p>
-                                        <p className="text-[10px] text-gray-400 font-bold uppercase">{new Date(review.created_at).toLocaleDateString("vi-VN")}</p>
-                                    </div>
-                                </div>
-                                <div className="flex text-yellow-500">
-                                    {[...Array(5)].map((_, i) => (
-                                        <Star key={i} size={12} fill={i < review.rating ? "currentColor" : "none"} />
-                                    ))}
-                                </div>
-                            </div>
-                            <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 italic">"{review.comment}"</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {tour.reviews?.map((review) => (
+                  <div key={review.review_id} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition duration-300">
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 text-white flex items-center justify-center font-bold">
+                          {review.full_name?.[0].toUpperCase()}
                         </div>
-                    ))}
-                    {(!tour.reviews || tour.reviews.length === 0) && (
-                        <p className="col-span-2 text-center text-gray-500 py-10 bg-gray-50 rounded-2xl italic">Chưa có đánh giá nào. Hãy là người đầu tiên chia sẻ cảm nghĩ!</p>
-                    )}
-                </div>
-
-                <div className="bg-gradient-to-br from-gray-900 to-purple-900 p-8 rounded-[2rem] text-white shadow-2xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
-                    <div className="relative z-10 w-full">
-                        <h4 className="text-2xl font-bold mb-2">Đánh giá của bạn</h4>
-                        <AddReviewForm tourId={id} onReviewAdded={() => window.location.reload()} />
+                        <div>
+                          <p className="font-bold text-gray-900 text-sm">{review.full_name}</p>
+                          <p className="text-[10px] text-gray-400 font-bold uppercase">{new Date(review.created_at).toLocaleDateString("vi-VN")}</p>
+                        </div>
+                      </div>
+                      <div className="flex text-yellow-500">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} size={12} fill={i < review.rating ? "currentColor" : "none"} />
+                        ))}
+                      </div>
                     </div>
+                    <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 italic">"{review.comment}"</p>
+                  </div>
+                ))}
+                {(!tour.reviews || tour.reviews.length === 0) && (
+                  <p className="col-span-2 text-center text-gray-500 py-10 bg-gray-50 rounded-2xl italic">Chưa có đánh giá nào. Hãy là người đầu tiên chia sẻ cảm nghĩ!</p>
+                )}
+              </div>
+
+              <div className="bg-gradient-to-br from-gray-900 to-purple-900 p-8 rounded-[2rem] text-white shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+                <div className="relative z-10 w-full">
+                  <h4 className="text-2xl font-bold mb-2">Đánh giá của bạn</h4>
+                  <AddReviewForm tourId={id} onReviewAdded={() => window.location.reload()} />
                 </div>
+              </div>
             </div>
           </div>
 
@@ -277,8 +277,8 @@ function TourDetail() {
               <div>
                 <p className="text-gray-400 text-sm font-bold uppercase tracking-widest mb-1">Giá tour cố định</p>
                 <div className="flex items-end gap-2 text-red-500">
-                    <span className="text-4xl font-black">{Number(tour.price).toLocaleString()} ₫</span>
-                    <span className="text-gray-400 text-sm mb-1.5 font-bold">/ khách</span>
+                  <span className="text-4xl font-black">{Number(tour.price).toLocaleString()} ₫</span>
+                  <span className="text-gray-400 text-sm mb-1.5 font-bold">/ khách</span>
                 </div>
               </div>
 
@@ -297,18 +297,18 @@ function TourDetail() {
                 </div>
               </div>
 
-              <button 
+              <button
                 onClick={() => navigate(`/book/${id}`)}
                 className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:scale-[1.02] active:scale-[0.98] text-white font-black py-4 rounded-2xl shadow-xl shadow-purple-200 transition-all duration-300"
               >
                 ĐẶT TOUR NGAY
               </button>
-              
+
               <div className="text-center space-y-2">
                 <p className="text-xs text-gray-400">Đảm bảo hoàn tiền nếu hủy trước 24h</p>
                 <div className="flex justify-center gap-4 opacity-30 grayscale">
-                    <img src="https://vnpay.vn/wp-content/uploads/2020/07/vnpay-logo.png" className="h-[14px]" alt="VNPAY" />
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" className="h-[20px]" alt="STRIPE" />
+                  <img src="https://vnpay.vn/wp-content/uploads/2020/07/vnpay-logo.png" className="h-[14px]" alt="VNPAY" />
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" className="h-[20px]" alt="STRIPE" />
                 </div>
               </div>
             </div>
