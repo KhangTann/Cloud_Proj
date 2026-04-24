@@ -6,12 +6,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'role')
+        fields = ('full_name', 'email', 'password', 'role')
 
     def create(self, validated_data):
         # Use create_user to properly hash the password
         user = User.objects.create_user(
-            username=validated_data['username'],
+            full_name=validated_data['full_name'],
             email=validated_data['email'],
             password=validated_data['password'],
             role=validated_data.get('role', 'USER')
@@ -21,5 +21,5 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('user_id', 'username', 'email', 'role', 'first_name', 'last_name', 'is_active', 'created_at')
+        fields = ('user_id', 'full_name', 'email', 'role', 'is_active', 'created_at')
 

@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
-import { 
-  LayoutDashboard, 
-  Map, 
-  Users, 
-  CreditCard, 
-  CheckCircle, 
-  XCircle, 
-  Lock, 
+import {
+  LayoutDashboard,
+  Map,
+  Users,
+  CreditCard,
+  CheckCircle,
+  XCircle,
+  Lock,
   Unlock,
   TrendingUp,
   Package,
@@ -129,25 +129,25 @@ function AdminDashboard() {
     <div className="flex flex-col md:flex-row gap-8 min-h-[80vh]">
       {/* Sidebar */}
       <div className="w-full md:w-64 space-y-2">
-        <button 
+        <button
           onClick={() => setActiveTab('overview')}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab === 'overview' ? 'bg-primary text-white shadow-md shadow-purple-200' : 'text-gray-600 hover:bg-gray-100'}`}
         >
           <LayoutDashboard size={20} /> Tổng quan
         </button>
-        <button 
+        <button
           onClick={() => setActiveTab('tours')}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab === 'tours' ? 'bg-primary text-white shadow-md shadow-purple-200' : 'text-gray-600 hover:bg-gray-100'}`}
         >
           <Map size={20} /> Quản lý Tour
         </button>
-        <button 
+        <button
           onClick={() => setActiveTab('users')}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab === 'users' ? 'bg-primary text-white shadow-md shadow-purple-200' : 'text-gray-600 hover:bg-gray-100'}`}
         >
           <Users size={20} /> Người dùng
         </button>
-        <button 
+        <button
           onClick={() => setActiveTab('revenue')}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab === 'revenue' ? 'bg-primary text-white shadow-md shadow-purple-200' : 'text-gray-600 hover:bg-gray-100'}`}
         >
@@ -171,21 +171,21 @@ function AdminDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-gradient-to-br from-green-50 to-emerald-100 p-6 rounded-2xl border border-green-200">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-green-500 rounded-lg"><DollarSign size={20} className="text-white"/></div>
+                  <div className="p-2 bg-green-500 rounded-lg"><DollarSign size={20} className="text-white" /></div>
                   <span className="font-bold text-green-800 text-sm uppercase tracking-wide">Tổng giao dịch</span>
                 </div>
                 <p className="text-3xl font-black text-green-900">{Number(stats?.total_revenue || 0).toLocaleString()} ₫</p>
               </div>
               <div className="bg-gradient-to-br from-purple-50 to-violet-100 p-6 rounded-2xl border border-purple-200">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-purple-500 rounded-lg"><TrendingUp size={20} className="text-white"/></div>
+                  <div className="p-2 bg-purple-500 rounded-lg"><TrendingUp size={20} className="text-white" /></div>
                   <span className="font-bold text-purple-800 text-sm uppercase tracking-wide">Phí Admin (20%)</span>
                 </div>
                 <p className="text-3xl font-black text-purple-900">{Number(stats?.admin_revenue || 0).toLocaleString()} ₫</p>
               </div>
               <div className="bg-gradient-to-br from-blue-50 to-cyan-100 p-6 rounded-2xl border border-blue-200">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-blue-500 rounded-lg"><Users size={20} className="text-white"/></div>
+                  <div className="p-2 bg-blue-500 rounded-lg"><Users size={20} className="text-white" /></div>
                   <span className="font-bold text-blue-800 text-sm uppercase tracking-wide">Thu Creator (80%)</span>
                 </div>
                 <p className="text-3xl font-black text-blue-900">{Number(stats?.creator_revenue || 0).toLocaleString()} ₫</p>
@@ -218,17 +218,16 @@ function AdminDashboard() {
                       <td className="px-6 py-4 text-sm font-medium text-gray-900">{tour.title}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{Number(tour.price).toLocaleString()} ₫</td>
                       <td className="px-6 py-4 text-sm">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                          tour.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${tour.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
                           tour.status === 'PENDING' ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'
-                        }`}>
+                          }`}>
                           {tour.status === 'APPROVED' ? 'Đã duyệt' : tour.status === 'PENDING' ? 'Mới' : 'Từ chối'}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm">
                         <div className="flex gap-2">
                           {tour.status !== 'APPROVED' && (
-                            <button 
+                            <button
                               onClick={() => handleUpdateTourStatus(tour.tour_id, 'APPROVED')}
                               className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
                               title="Phê duyệt"
@@ -237,7 +236,7 @@ function AdminDashboard() {
                             </button>
                           )}
                           {tour.status !== 'REJECTED' && (
-                            <button 
+                            <button
                               onClick={() => handleUpdateTourStatus(tour.tour_id, 'REJECTED')}
                               className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
                               title="Từ chối"
@@ -280,29 +279,28 @@ function AdminDashboard() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
-                            {user.username[0].toUpperCase()}
+                            {user.full_name[0].toUpperCase()}
                           </div>
-                          <span className="text-sm font-medium text-gray-900">{user.username}</span>
+                          <span className="text-sm font-medium text-gray-900">{user.full_name}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">{user.email}</td>
                       <td className="px-6 py-4 text-sm">
-                        <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                          user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700' : 
+                        <span className={`px-2 py-0.5 rounded text-xs font-semibold ${user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700' :
                           user.role === 'CREATOR' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
-                        }`}>
+                          }`}>
                           {user.role}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm">
                         {user.is_active ? (
-                          <span className="flex items-center text-green-600 gap-1"><UserCheck size={14}/> Hoạt động</span>
+                          <span className="flex items-center text-green-600 gap-1"><UserCheck size={14} /> Hoạt động</span>
                         ) : (
-                          <span className="flex items-center text-red-600 gap-1"><Lock size={14}/> Bị khóa</span>
+                          <span className="flex items-center text-red-600 gap-1"><Lock size={14} /> Bị khóa</span>
                         )}
                       </td>
                       <td className="px-6 py-4 text-sm">
-                        <button 
+                        <button
                           onClick={() => handleToggleUserStatus(user.user_id)}
                           className={`p-2 rounded-lg transition ${user.is_active ? 'text-orange-600 hover:bg-orange-50' : 'text-green-600 hover:bg-green-50'}`}
                           title={user.is_active ? "Khóa tài khoản" : "Mở khóa"}

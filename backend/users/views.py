@@ -30,7 +30,7 @@ class UserToggleActiveView(APIView):
         user.is_active = not user.is_active
         user.save()
         status_str = "kích hoạt" if user.is_active else "khóa"
-        return Response({"message": f"Đã {status_str} tài khoản {user.username}", "is_active": user.is_active})
+        return Response({"message": f"Đã {status_str} tài khoản {user.full_name}", "is_active": user.is_active})
 
 class UserRegistrationView(CreateAPIView):
     permission_classes = [AllowAny]
